@@ -515,6 +515,97 @@ function GBRSBadge({ pct }) {
   );
 }
 
+// ─── EXERCISE LOGGER ─────────────────────────────────────────────────────────
+function ExerciseLogger({ logKey, oe, prog, sets, prevSets, suggestion, onSave }) {
+  const [open, setOpen] = useState(false);
+  const [kg, setKg] = useState("");
+  const [reps, setReps] = useState("");
+  const [rir, setRir] = useState("");
+  const hasSets = sets.length > 0;
+
+  const addSet = () => {
+    if (!kg && !reps) return;
+    onSave([...sets, { kg, reps, rir, id: Date.now() }]);
+    setKg(""); setReps(""); setRir("");
+  };
+
+  const prevBest = prevSets.length > 0
+    ? prevSets.reduce((a, b) => (parseFloat(b.kg) || 0) > (parseFloat(a.kg) || 0) ? b : a, prevSets[0])
+    : null;
+
+  const inp = {
+    width: "100%", background: "#080A04", border: `1px solid #222A10`,
+    borderRadius: 4, color: "#E8E0CC", padding: "7px 8px",
+    fontSize: 13, boxSizing: "border-box", outline: "none", fontFamily: "'Share Tech Mono',monospace",
+  };
+
+  return (
+    <div style={{
+      background: hasSets ? "#2D4A1E44" : "#1E2510",
+      border: `1px solid ${hasSets ? "#6AAF3D44" : "#222A10"}`,
+      borderRadius: 7, marginBottom: 7, overflow: "hidden",
+    }}>
+      <div onClick={() => setOpen(!open)} style={{ padding: "11px 12px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: hasSets ? "#6AAF3D" : "#F0EDE4", letterSpacing: "0.02em" }}>{oe.naam}</div>
+          <div style={{ fontSize: 10, color: "#6AAF3D", fontFamily: "'Share Tech Mono',monospace", marginTop: 3 }}>
+            {oe.sets}×{oe.reps} · {prog} · RIR {oe.rir}
+          </div>
+          {oe.rest && <div style={{ fontSize: 9, color: "#3E3E2E", fontFamily: "'Share Tech Mono',monospace", marginTop: 1 }}>Rust: {oe.rest}</div>}
+          {prevBest && (
+            <div style={{ fontSize: 9, color: "#3E3E2E", fontFamily: "'Share Tech Mono',monospace", marginTop: 2 }}>
+              ← vorige: {prevBest.kg ? prevBest.kg + "kg" : "—"} × {prevBest.reps} reps
+            </div>
+          )}
+          {suggestion && (
+            <div style={{ marginTop: 5, padding: "3px 7px", background: suggestion.col + "18", border: `1px solid ${suggestion.col}33`, borderRadius: 3 }}>
+              <span style={{ fontSize: 9, fontWeight: 700, color: suggestion.col, fontFamily: "'Share Tech Mono',monospace" }}>{suggestion.msg}</span>
+            </div>
+          )}
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3, flexShrink: 0, marginLeft: 8 }}>
+          {hasSets && <span style={{ fontSize: 10, color: "#6AAF3D", fontWeight: 700 }}>{sets.length}×✓</span>}
+          <span style={{ color: "#3E3E2E", fontSize: 12 }}>{open ? "▲" : "▼"}</span>
+        </div>
+      </div>
+
+      {open && (
+        <div style={{ borderTop: "1px solid #222A10", padding: "10px 12px" }}>
+          {sets.length > 0 && (
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 8, color: "#3E3E2E", textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "'Share Tech Mono',monospace", marginBottom: 6 }}>// GELOGDE SETS</div>
+              {sets.map((s, i) => (
+                <div key={s.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 8px", background: "#2D4A1E44", border: "1px solid #6AAF3D33", borderRadius: 4, marginBottom: 3 }}>
+                  <span style={{ fontSize: 11, color: "#6AAF3D", fontWeight: 600, fontFamily: "'Share Tech Mono',monospace" }}>
+                    Set {i + 1} — {s.kg ? s.kg + "kg" : "—"} × {s.reps ? s.reps + " reps" : "—"}{s.rir ? ` · RIR ${s.rir}` : ""}
+                  </span>
+                  <button onClick={() => onSave(sets.filter(x => x.id !== s.id))}
+                    style={{ background: "none", border: "none", color: "#B82222", fontSize: 16, cursor: "pointer", padding: "0 4px" }}>×</button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div style={{ fontSize: 8, color: "#3E3E2E", textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "'Share Tech Mono',monospace", marginBottom: 6 }}>// SET {sets.length + 1}</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 10 }}>
+            {[["KG", kg, setKg, "0"], ["REPS", reps, setReps, "0"], ["RIR", rir, setRir, "2"]].map(([l, v, s, p]) => (
+              <div key={l}>
+                <div style={{ fontSize: 8, color: "#3E3E2E", marginBottom: 3, textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "'Share Tech Mono',monospace" }}>{l}</div>
+                <input type="number" value={v} onChange={e => s(e.target.value)} placeholder={p}
+                  onKeyDown={e => e.key === "Enter" && addSet()} style={inp} />
+              </div>
+            ))}
+          </div>
+          <button onClick={addSet} style={{
+            width: "100%", background: "#4A7C2F", border: "none", borderRadius: 4,
+            color: "#F0EDE4", padding: "9px", fontSize: 11, fontWeight: 800,
+            cursor: "pointer", letterSpacing: "0.1em", fontFamily: "'Oswald',sans-serif",
+          }}>+ SET TOEVOEGEN</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── MAIN ────────────────────────────────────────────────────────────────────
 export default function App() {
   const [screen,   setScreen]   = useState("splash");
@@ -997,7 +1088,11 @@ export default function App() {
                 const sessKey = `b${Math.floor(activeW / 4)}_w${weekInBlok}_s${si}`;
                 const sessLogs = logs[sessKey] || {};
                 const allEx = [...(sess.oefeningen || []), ...(sess.conditioning || [])];
-                const doneCount = allEx.filter((_, oi) => sessLogs[`o${oi}`]?.done).length;
+                const doneCount = (sess.oefeningen || []).filter((_, oi) =>
+                  (logs[`${sessKey}_o${oi}`] || []).length > 0
+                ).length + (sess.conditioning || []).filter((_, ci) =>
+                  logs[`${sessKey}_c${ci}_done`]
+                ).length;
                 const isOpen = activeSess === `${activeW}_${si}`;
                 const complete = doneCount === allEx.length && allEx.length > 0;
 
@@ -1025,32 +1120,39 @@ export default function App() {
                           <div style={{ marginBottom: 12 }}>
                             <div style={{ fontSize: 8, color: C.muted, textTransform: "uppercase", letterSpacing: "0.14em", fontFamily: F.mono, marginBottom: 8 }}>// HOOFDWERK</div>
                             {sess.oefeningen.map((oe, oi) => {
-                              const oKey = `o${oi}`;
-                              const done = sessLogs[oKey]?.done;
+                              const oKey = `${sessKey}_o${oi}`;
+                              const oeSets = logs[oKey] || [];
                               const prog = oe.progressie?.[weekInBlok] || oe.load;
+                              const prevKey = `b${Math.floor(activeW/4)}_w${weekInBlok > 0 ? weekInBlok-1 : weekInBlok}_s${si}_o${oi}`;
+                              const prevSets = logs[prevKey] || [];
+                              const hasSets = oeSets.length > 0;
+
+                              // 2-for-2 suggestie
+                              let suggestion = null;
+                              if (hasSets) {
+                                const last = oeSets[oeSets.length - 1];
+                                const targetReps = parseInt(oe.reps) || 0;
+                                const lastReps = parseInt(last.reps) || 0;
+                                const lastKg = parseFloat(last.kg) || 0;
+                                const isLower = oe.naam?.toLowerCase().includes("squat") || oe.naam?.toLowerCase().includes("deadlift") || oe.naam?.toLowerCase().includes("carry");
+                                const inc = isLower ? 5 : 2.5;
+                                if (targetReps > 0 && lastReps >= targetReps + 2) {
+                                  suggestion = { msg: `↑ Volgende sessie: ${lastKg + inc}kg`, col: C.accentLt };
+                                } else if (targetReps > 0 && lastReps >= targetReps) {
+                                  suggestion = { msg: `→ Zelfde gewicht aanhouden (${lastKg}kg)`, col: C.gold };
+                                } else if (lastReps > 0) {
+                                  suggestion = { msg: `↓ Gewicht vasthouden of -${inc}kg`, col: C.red };
+                                }
+                              }
+
                               return (
-                                <div key={oi} style={{ background: done ? C.accentDk + "44" : C.surface, border: `1px solid ${done ? C.accentLt + "33" : C.border}`, borderRadius: 7, padding: "11px 12px", marginBottom: 7 }}>
-                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                                    <div style={{ flex: 1 }}>
-                                      <div style={{ fontSize: 13, fontWeight: 700, color: done ? C.accentLt : C.white, letterSpacing: "0.02em" }}>{oe.naam}</div>
-                                      <div style={{ fontSize: 10, color: C.accentLt, fontFamily: F.mono, marginTop: 3 }}>{oe.sets}×{oe.reps} · {prog} · RIR {oe.rir}</div>
-                                      <div style={{ fontSize: 9, color: C.muted, fontFamily: F.mono, marginTop: 1 }}>Rust: {oe.rest}</div>
-                                    </div>
-                                    <button onClick={() => {
-                                      const updated = { ...logs, [sessKey]: { ...sessLogs, [oKey]: { done: !done } } };
-                                      setLogs(updated);
-                                      if (!done) showToast("✓ Gedaan");
-                                    }} style={{
-                                      background: done ? C.accent : "transparent",
-                                      border: `1px solid ${done ? C.accentLt : C.border}`,
-                                      borderRadius: 5, color: done ? C.white : C.muted,
-                                      padding: "7px 12px", fontSize: 11, cursor: "pointer",
-                                      fontFamily: F.mono, fontWeight: 700, flexShrink: 0, marginLeft: 10,
-                                    }}>
-                                      {done ? "✓" : "LOG"}
-                                    </button>
-                                  </div>
-                                </div>
+                                <ExerciseLogger key={oKey} logKey={oKey} oe={oe} prog={prog}
+                                  sets={oeSets} prevSets={prevSets} suggestion={suggestion}
+                                  onSave={(updatedSets) => {
+                                    setLogs(prev => ({ ...prev, [oKey]: updatedSets }));
+                                    showToast("Set opgeslagen ✓");
+                                  }}
+                                />
                               );
                             })}
                           </div>
@@ -1061,8 +1163,8 @@ export default function App() {
                           <div>
                             <div style={{ fontSize: 8, color: C.muted, textTransform: "uppercase", letterSpacing: "0.14em", fontFamily: F.mono, marginBottom: 8 }}>// CONDITIONING</div>
                             {sess.conditioning.map((oe, oi) => {
-                              const oKey = `o${(sess.oefeningen?.length || 0) + oi}`;
-                              const done = sessLogs[oKey]?.done;
+                              const oKey = `${sessKey}_c${oi}`;
+                              const done = logs[oKey + "_done"];
                               const prog = oe.progressie?.[weekInBlok] || oe.load;
                               return (
                                 <div key={oi} style={{ background: done ? C.accentDk + "44" : C.surface, border: `1px solid ${done ? C.accentLt + "33" : C.border}`, borderRadius: 7, padding: "11px 12px", marginBottom: 7 }}>
@@ -1072,8 +1174,7 @@ export default function App() {
                                       <div style={{ fontSize: 10, color: C.accentLt, fontFamily: F.mono, marginTop: 3 }}>{prog}</div>
                                     </div>
                                     <button onClick={() => {
-                                      const updated = { ...logs, [sessKey]: { ...sessLogs, [oKey]: { done: !done } } };
-                                      setLogs(updated);
+                                      setLogs(prev => ({ ...prev, [oKey + "_done"]: !done }));
                                       if (!done) showToast("✓ Gedaan");
                                     }} style={{
                                       background: done ? C.accent : "transparent",
