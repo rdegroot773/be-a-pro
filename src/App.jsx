@@ -928,7 +928,7 @@ export default function App() {
     const weekInBlok = activeW % 4;
 
     // Tab navigation
-    const TABS = [["overzicht", "OVERZICHT"], ["training", "TRAINING"], ["gaps", "GAPS"]];
+    const TABS = [["overzicht", "OVERZICHT"], ["training", "TRAINING"], ["prehab", "PREHAB"], ["gaps", "GAPS"]];
 
     return (
       <div style={{ background: C.bg, minHeight: "100vh", fontFamily: F.oswald, color: C.text, maxWidth: 480, margin: "0 auto" }}>
@@ -961,7 +961,7 @@ export default function App() {
         )}
 
         {/* HEADER */}
-        <div style={{ background: C.mid, borderBottom: `1px solid ${C.border}`, padding: "16px 20px 12px" }}>
+        <div style={{ background: C.mid, borderBottom: `1px solid ${C.border}`, paddingTop: "max(48px, env(safe-area-inset-top, 48px))", paddingBottom: 12, paddingLeft: 20, paddingRight: 20 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
               <div style={{ fontSize: 10, color: C.accentLt, letterSpacing: "0.2em", fontFamily: F.mono, marginBottom: 3 }}>BE A PRO</div>
@@ -1115,6 +1115,49 @@ export default function App() {
 
                     {isOpen && (
                       <div style={{ borderTop: `1px solid ${C.border}`, padding: "14px 16px" }}>
+
+                        {/* WARM-UP */}
+                        {(() => {
+                          const isLower = sess.naam?.toLowerCase().includes("lower") || sess.naam?.toLowerCase().includes("power");
+                          const isUpper = sess.naam?.toLowerCase().includes("upper") || sess.naam?.toLowerCase().includes("push");
+                          const isCond  = sess.naam?.toLowerCase().includes("conditioning") || sess.naam?.toLowerCase().includes("peak") || sess.naam?.toLowerCase().includes("mma") || sess.naam?.toLowerCase().includes("tactisch") || sess.naam?.toLowerCase().includes("metabole") || sess.naam?.toLowerCase().includes("basis");
+                          const warmup = isLower ? [
+                            { name: "Airbike Z1", sets: "5 min", cue: "HR <135 bpm" },
+                            { name: "McGill Bird Dog", sets: "2×8/zij", cue: "Spine neutral" },
+                            { name: "Hip 90/90 + thoracale rotatie", sets: "2×8/zij", cue: "Heupflexor open" },
+                            { name: "Goblet Squat (licht)", sets: "2×10", cue: "Diepte zoeken" },
+                            { name: "Tib Raise (grond)", sets: "2×15", cue: "Dorsaalflexie activatie" },
+                          ] : isUpper ? [
+                            { name: "Band Pull-Apart", sets: "3×15", cue: "Scapulaire retractie" },
+                            { name: "Thoracale extensie mob.", sets: "2×10", cue: "Foam roller" },
+                            { name: "Shoulder CARs", sets: "2×8/zij", cue: "Gewrichtsvoorbereiding" },
+                            { name: "Lichte bench aantippen", sets: "2×10", cue: "2s pause op borst" },
+                          ] : isCond ? [
+                            { name: "Roeier Z1", sets: "5 min", cue: "HR <140 bpm" },
+                            { name: "Schaduwbewegen / techniek", sets: "3 min", cue: "Licht, intentioneel" },
+                            { name: "Hip CARs + Shoulder CARs", sets: "1×8/zij", cue: "Gewrichtsvoorbereiding" },
+                            { name: "Explosieve squat jumps (BW)", sets: "2×5", cue: "Max intent" },
+                          ] : [
+                            { name: "Roeier Z1", sets: "5 min", cue: "HR <135 bpm" },
+                            { name: "McGill Dead Bug", sets: "2×8/zij", cue: "Core activatie" },
+                            { name: "Shoulder CARs", sets: "2×8/zij", cue: "Shoulder prep" },
+                          ];
+                          return (
+                            <div style={{ marginBottom: 14 }}>
+                              <div style={{ fontSize: 8, color: C.muted, textTransform: "uppercase", letterSpacing: "0.14em", fontFamily: F.mono, marginBottom: 8 }}>// WARM-UP · 10 MIN</div>
+                              {warmup.map((w, wi) => (
+                                <div key={wi} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${C.border}` }}>
+                                  <div>
+                                    <div style={{ fontSize: 11, color: C.text }}>{w.name}</div>
+                                    <div style={{ fontSize: 9, color: C.muted, fontFamily: F.mono }}>{w.cue}</div>
+                                  </div>
+                                  <span style={{ fontSize: 10, color: C.accentLt, fontWeight: 700, fontFamily: F.mono, flexShrink: 0, marginLeft: 8 }}>{w.sets}</span>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
+
                         {/* Main exercises */}
                         {sess.oefeningen?.length > 0 && (
                           <div style={{ marginBottom: 12 }}>
@@ -1191,6 +1234,37 @@ export default function App() {
                             })}
                           </div>
                         )}
+
+                        {/* COOLDOWN */}
+                        {(() => {
+                          const isCond = sess.naam?.toLowerCase().includes("conditioning") || sess.naam?.toLowerCase().includes("peak") || sess.naam?.toLowerCase().includes("mma") || sess.naam?.toLowerCase().includes("tactisch") || sess.naam?.toLowerCase().includes("metabole");
+                          const cooldown = isCond ? [
+                            { name: "Roeier Z1", sets: "5-8 min", cue: "HR actief omlaag" },
+                            { name: "Neck Series (NSCA)", sets: "4×30s/richting", cue: "Post combat sport" },
+                            { name: "Lat Stretch hangend", sets: "3×30s", cue: "Schoudergordel decompressie" },
+                            { name: "Breath & Flow — restorative", sets: "15 min", cue: "Parasympathisch activeren" },
+                          ] : [
+                            { name: "Pec Minor Stretch", sets: "4×45s", cue: "Anterieur schouder" },
+                            { name: "Lat Stretch", sets: "3×30s", cue: "Hangend of half-knielend" },
+                            { name: "Thoracale extensie mob.", sets: "2×10", cue: "Foam roller" },
+                            { name: "Breath & Flow — cooldown", sets: "10 min", cue: "Post S&C" },
+                          ];
+                          return (
+                            <div style={{ marginTop: 14 }}>
+                              <div style={{ fontSize: 8, color: C.muted, textTransform: "uppercase", letterSpacing: "0.14em", fontFamily: F.mono, marginBottom: 8 }}>// COOLDOWN</div>
+                              {cooldown.map((c, ci) => (
+                                <div key={ci} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${C.border}` }}>
+                                  <div>
+                                    <div style={{ fontSize: 11, color: C.text }}>{c.name}</div>
+                                    <div style={{ fontSize: 9, color: C.muted, fontFamily: F.mono }}>{c.cue}</div>
+                                  </div>
+                                  <span style={{ fontSize: 10, color: C.accentLt, fontWeight: 700, fontFamily: F.mono, flexShrink: 0, marginLeft: 8 }}>{c.sets}</span>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
+
                       </div>
                     )}
                   </div>
@@ -1198,6 +1272,107 @@ export default function App() {
               })}
             </div>
           )}
+
+          {/* ── PREHAB ──────────────────────────────────────────────── */}
+          {tab === "prehab" && (() => {
+            // Vereenvoudigde FMS-gebaseerde prehab op basis van baseline scores
+            const broadJumpScore = parseFloat(baseline.broadJump) || 0;
+            const benchScore = parseFloat(baseline.benchAmrap) || 0;
+            const pullupScore = parseFloat(baseline.pullups) || 0;
+
+            const prehabItems = [
+              // Dagelijks altijd
+              { name: "McGill Bird Dog", sets: "3×10/zij", cue: "Spine neutral — lage rug activatie", priority: true },
+              { name: "McGill Dead Bug", sets: "3×8/zij", cue: "Tempo 3-1-3 — core stabiliteit", priority: true },
+              { name: "McGill Side Plank", sets: "3×20s/zij", cue: "Neutraal bekken", priority: true },
+              { name: "Neck Series — laterale flexie", sets: "4×30s/richting", cue: "Licht, geen momentum — NSCA protocol", priority: true },
+              { name: "Neck CARs", sets: "2×5 rondes", cue: "Vol ROM, bewust en gecontroleerd", priority: true },
+              // Schouder (bench gap of pullup gap)
+              ...(benchScore < 15 || pullupScore < 15 ? [
+                { name: "Pec Minor Stretch", sets: "4×45s", cue: "FMS flag — anterieur schouder", priority: false },
+                { name: "Band Pull-Apart", sets: "3×15", cue: "Scapulaire retractie — shoulder prep", priority: false },
+                { name: "Thoracale extensie mob.", sets: "2×10", cue: "Foam roller — thoracale mobiliteit", priority: false },
+              ] : []),
+              // Heup/enkel (broad jump gap)
+              ...(broadJumpScore < 2.10 ? [
+                { name: "Hip 90/90 Stretch", sets: "2×60s/zij", cue: "Heupflexor extensie — power output", priority: false },
+                { name: "Enkel Dorsaalflexie", sets: "3×10/zij", cue: "Knie over teen — squat diepte", priority: false },
+                { name: "Tib Raise (grond)", sets: "3×15", cue: "Tibialis anterior — enkelmobiliteit", priority: false },
+              ] : []),
+              // Altijd
+              { name: "Hanging Knee Raise", sets: "3×10", cue: "Spine neutral, geen swing — lage rug", priority: false },
+              { name: "Shoulder CARs", sets: "2×8/zij", cue: "Gewrichtsvoorbereiding schouder", priority: false },
+            ];
+
+            const prehabLogs = logs["prehab_daily"] || {};
+            const prehabDone = prehabItems.filter(ex => prehabLogs[ex.name]).length;
+
+            return (
+              <div>
+                <div style={{ background: C.card, border: `1px solid ${C.accentLt}33`, borderLeft: `2px solid ${C.accentLt}`, borderRadius: 8, padding: "12px 14px", marginBottom: 14 }}>
+                  <div style={{ fontSize: 9, color: C.accentLt, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", fontFamily: F.mono, marginBottom: 4 }}>// DAGELIJKSE PREHAB — 15 MIN</div>
+                  <div style={{ fontSize: 9, color: C.muted, fontFamily: F.mono, lineHeight: 1.6 }}>
+                    NSCA TSAC ch. 19 · Prioriteiten gebaseerd op jouw baseline scores.<br/>
+                    Shoulder en core aangemerkt als primair.
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, marginBottom: 4 }}>
+                    <span style={{ fontSize: 9, color: C.sub, fontFamily: F.mono }}>{prehabDone}/{prehabItems.length} gedaan</span>
+                    {prehabDone === prehabItems.length && <span style={{ fontSize: 9, color: C.accentLt, fontWeight: 700, fontFamily: F.mono }}>✓ COMPLEET</span>}
+                  </div>
+                  <div style={{ height: 3, background: C.surface, borderRadius: 1 }}>
+                    <div style={{ height: 3, width: `${(prehabDone / prehabItems.length) * 100}%`, background: C.accentLt, borderRadius: 1, transition: "width 0.3s" }} />
+                  </div>
+                </div>
+
+                {/* Prioriteit items */}
+                <div style={{ fontSize: 8, color: C.accentLt, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", fontFamily: F.mono, marginBottom: 8 }}>// PRIORITEIT — ALTIJD</div>
+                {prehabItems.filter(ex => ex.priority).map((ex, i) => {
+                  const done = !!prehabLogs[ex.name];
+                  return (
+                    <div key={i} onClick={() => setLogs(prev => ({ ...prev, prehab_daily: { ...prehabLogs, [ex.name]: !done } }))}
+                      style={{ background: done ? `${C.accentDk}44` : C.card, border: `1px solid ${done ? C.accentLt + "44" : C.border}`, borderRadius: 7, marginBottom: 6, padding: "10px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12 }}>
+                      <div style={{ width: 18, height: 18, borderRadius: 3, flexShrink: 0, border: `2px solid ${done ? C.accentLt : C.muted}`, background: done ? C.accent : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {done && <span style={{ color: C.white, fontSize: 11, fontWeight: 900 }}>✓</span>}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 12, color: done ? C.sub : C.white, textDecoration: done ? "line-through" : "none" }}>{ex.name}</div>
+                        <div style={{ fontSize: 9, color: C.muted, fontFamily: F.mono, marginTop: 2 }}>{ex.cue}</div>
+                      </div>
+                      <span style={{ fontSize: 10, color: C.accentLt, fontWeight: 700, fontFamily: F.mono, flexShrink: 0 }}>{ex.sets}</span>
+                    </div>
+                  );
+                })}
+
+                {/* Aanvullend */}
+                {prehabItems.filter(ex => !ex.priority).length > 0 && (
+                  <>
+                    <div style={{ fontSize: 8, color: C.sub, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", fontFamily: F.mono, marginTop: 14, marginBottom: 8 }}>// AANVULLEND — OP BASIS VAN GAPS</div>
+                    {prehabItems.filter(ex => !ex.priority).map((ex, i) => {
+                      const done = !!prehabLogs[ex.name];
+                      return (
+                        <div key={i} onClick={() => setLogs(prev => ({ ...prev, prehab_daily: { ...prehabLogs, [ex.name]: !done } }))}
+                          style={{ background: done ? `${C.accentDk}44` : C.card, border: `1px solid ${done ? C.accentLt + "44" : C.border}`, borderRadius: 7, marginBottom: 6, padding: "10px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12 }}>
+                          <div style={{ width: 18, height: 18, borderRadius: 3, flexShrink: 0, border: `2px solid ${done ? C.accentLt : C.muted}`, background: done ? C.accent : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            {done && <span style={{ color: C.white, fontSize: 11, fontWeight: 900 }}>✓</span>}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 12, color: done ? C.sub : C.white, textDecoration: done ? "line-through" : "none" }}>{ex.name}</div>
+                            <div style={{ fontSize: 9, color: C.muted, fontFamily: F.mono, marginTop: 2 }}>{ex.cue}</div>
+                          </div>
+                          <span style={{ fontSize: 10, color: C.accentLt, fontWeight: 700, fontFamily: F.mono, flexShrink: 0 }}>{ex.sets}</span>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+
+                <button onClick={() => { setLogs(prev => ({ ...prev, prehab_daily: {} })); showToast("Prehab gereset ✓"); }}
+                  style={{ marginTop: 10, width: "100%", background: "transparent", border: `1px solid ${C.muted}`, borderRadius: 4, color: C.muted, padding: "9px", fontSize: 10, cursor: "pointer", fontFamily: F.mono, letterSpacing: "0.08em" }}>
+                  // RESET CHECKLIST
+                </button>
+              </div>
+            );
+          })()}
 
           {/* ── GAPS ────────────────────────────────────────────────── */}
           {tab === "gaps" && (
